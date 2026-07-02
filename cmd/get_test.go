@@ -18,6 +18,7 @@ import (
 	fakeruntime "github.com/linuxsuren/go-fake-runtime"
 	"github.com/linuxsuren/http-downloader/mock/mhttp"
 	"github.com/linuxsuren/http-downloader/pkg/installer"
+	"github.com/linuxsuren/http-downloader/pkg/net"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 )
@@ -144,6 +145,7 @@ func TestRunE(t *testing.T) {
 			roundTripper := mhttp.NewMockRoundTripper(ctrl)
 
 			mockRequest, _ := http.NewRequest(http.MethodGet, do.URL, nil)
+			mockRequest.Header.Set("User-Agent", net.DefaultUserAgent)
 			mockResponse := &http.Response{
 				StatusCode: http.StatusPartialContent,
 				Proto:      "HTTP/1.1",

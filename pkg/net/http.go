@@ -23,6 +23,8 @@ const (
 	ContentType = "Content-Type"
 	// ApplicationForm is for the form submit
 	ApplicationForm = "application/x-www-form-urlencoded"
+	// DefaultUserAgent is the default User-Agent for HTTP requests
+	DefaultUserAgent = "Wget/1.21.2 (linux-gnu)"
 )
 
 // HTTPDownloader is the downloader for http request
@@ -109,6 +111,7 @@ func (h *HTTPDownloader) DownloadAsStream(writer io.Writer) (err error) {
 		return err
 	}
 
+	req.Header.Set("User-Agent", DefaultUserAgent)
 	for k, v := range h.Header {
 		req.Header.Set(k, v)
 	}

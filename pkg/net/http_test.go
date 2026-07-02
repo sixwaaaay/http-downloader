@@ -17,6 +17,12 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+func newTestRequest(method, url string) *http.Request {
+	req, _ := http.NewRequest(method, url, nil)
+	req.Header.Set("User-Agent", net.DefaultUserAgent)
+	return req
+}
+
 var _ = Describe("http test", func() {
 	var (
 		ctrl           *gomock.Controller
@@ -60,7 +66,7 @@ var _ = Describe("http test", func() {
 
 	Context("DownloadFile", func() {
 		It("no progress indication", func() {
-			request, _ := http.NewRequest(http.MethodGet, "", nil)
+			request := newTestRequest(http.MethodGet, "")
 			response := &http.Response{
 				StatusCode: 200,
 				Proto:      "HTTP/1.1",
@@ -89,7 +95,7 @@ var _ = Describe("http test", func() {
 				Password:       "Password",
 			}
 
-			request, _ := http.NewRequest(http.MethodGet, "", nil)
+			request := newTestRequest(http.MethodGet, "")
 			request.SetBasicAuth(downloader.UserName, downloader.Password)
 			response := &http.Response{
 				StatusCode: 200,
@@ -124,7 +130,7 @@ var _ = Describe("http test", func() {
 				RoundTripper: roundTripper,
 			}
 
-			request, _ := http.NewRequest(http.MethodGet, "", nil)
+			request := newTestRequest(http.MethodGet, "")
 			response := &http.Response{}
 			roundTripper.EXPECT().
 				RoundTrip(request).Return(response, fmt.Errorf("fake error")).AnyTimes()
@@ -140,7 +146,7 @@ var _ = Describe("http test", func() {
 				TargetFilePath: debugFile,
 			}
 
-			request, _ := http.NewRequest(http.MethodGet, "", nil)
+			request := newTestRequest(http.MethodGet, "")
 			response := &http.Response{
 				StatusCode: 400,
 				Proto:      "HTTP/1.1",
@@ -163,7 +169,7 @@ var _ = Describe("http test", func() {
 				TargetFilePath: targetFilePath,
 			}
 
-			request, _ := http.NewRequest(http.MethodGet, "", nil)
+			request := newTestRequest(http.MethodGet, "")
 			response := &http.Response{
 				StatusCode: 200,
 				Proto:      "HTTP/1.1",
@@ -237,7 +243,7 @@ func TestDetectSize(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	roundTripper := mhttp.NewMockRoundTripper(ctrl)
 
-	mockRequest, _ := http.NewRequest(http.MethodGet, targetURL, nil)
+	mockRequest := newTestRequest(http.MethodGet, targetURL)
 	mockRequest.Header.Set("Range", "bytes=2-")
 	mockResponse := &http.Response{
 		StatusCode: http.StatusPartialContent,
@@ -273,7 +279,7 @@ func TestMultiThreadDownloader(t *testing.T) {
 			roundTripper := mhttp.NewMockRoundTripper(ctrl)
 
 			// for size detecting
-			mockRequest, _ := http.NewRequest(http.MethodGet, url, nil)
+			mockRequest := newTestRequest(http.MethodGet, url)
 			mockRequest.Header.Set("Range", "bytes=2-")
 			mockResponse := &http.Response{
 				StatusCode: http.StatusPartialContent,
@@ -300,7 +306,7 @@ func TestMultiThreadDownloader(t *testing.T) {
 			// for regular download
 			ctrl := gomock.NewController(t)
 			roundTripper := mhttp.NewMockRoundTripper(ctrl)
-			mockRequest4, _ := http.NewRequest(http.MethodGet, url, nil)
+			mockRequest4 := newTestRequest(http.MethodGet, url)
 			mockRequest4.Header.Set("Range", "bytes=2-")
 			mockResponse4 := &http.Response{
 				StatusCode: http.StatusOK,
@@ -314,7 +320,7 @@ func TestMultiThreadDownloader(t *testing.T) {
 			roundTripper.EXPECT().
 				RoundTrip(mockRequest4).Return(mockResponse4, nil)
 
-			mockRequest3, _ := http.NewRequest(http.MethodGet, url, nil)
+			mockRequest3 := newTestRequest(http.MethodGet, url)
 			mockRequest3.Header.Set("Range", "bytes=0-")
 			mockResponse3 := &http.Response{
 				StatusCode: http.StatusOK,
@@ -341,7 +347,7 @@ func TestMultiThreadDownloader(t *testing.T) {
 			// for regular download
 			ctrl := gomock.NewController(t)
 			roundTripper := mhttp.NewMockRoundTripper(ctrl)
-			mockRequest4, _ := http.NewRequest(http.MethodGet, url, nil)
+			mockRequest4 := newTestRequest(http.MethodGet, url)
 			mockRequest4.Header.Set("Range", "bytes=2-")
 			mockResponse4 := &http.Response{
 				StatusCode: http.StatusPartialContent,
@@ -355,7 +361,7 @@ func TestMultiThreadDownloader(t *testing.T) {
 			roundTripper.EXPECT().
 				RoundTrip(mockRequest4).Return(mockResponse4, nil)
 
-			mockRequest5, _ := http.NewRequest(http.MethodGet, url, nil)
+			mockRequest5 := newTestRequest(http.MethodGet, url)
 			mockRequest5.Header.Set("Range", "bytes=0-")
 			mockResponse5 := &http.Response{
 				StatusCode: http.StatusOK,
